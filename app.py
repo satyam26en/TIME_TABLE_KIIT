@@ -136,7 +136,7 @@ def generate_timetable(roll_number):
 
     fig.update_layout(
         title='Timetable',
-        title_x=0.5,
+        title_x=0.4,
         title_font=dict(size=32, family='Arial Black, sans-serif', color='darkblue'),
         width=1000,  # Adjust width to fit the size of the image
         height=600   # Adjust height to fit the size of the image
