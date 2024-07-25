@@ -12,7 +12,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
-# Ensure kaleido is installed
+
 try:
     import kaleido
 except ImportError:
@@ -58,7 +58,7 @@ def standardize_time_slot(time_slot):
         '3 TO 4': '3 TO 4',
         '4 TO 5': '4 TO 5'
     }
-    # Remove extra spaces in the time slot string to match the mapping
+   
     standardized_slot = ' '.join(time_slot.upper().split())
     return time_slot_mapping.get(standardized_slot, time_slot)
 
