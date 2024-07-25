@@ -144,6 +144,7 @@ def generate_timetable(roll_number):
     return fig
 
 # Streamlit App
+st.image('https://raw.githubusercontent.com/satyam26en/TIME_TABLE_KIIT/main/KIIT-Full-Logo-Center.png', use_column_width=True)
 st.title('Student Timetable Viewer')
 
 roll_number = st.text_input("Enter Roll Number")
