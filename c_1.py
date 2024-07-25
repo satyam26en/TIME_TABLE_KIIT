@@ -204,3 +204,4 @@ if st.button("Generate Timetable"):
     else:
         st.error("Please enter a roll number.")
 
+
