@@ -150,7 +150,7 @@ def generate_timetable(roll_number):
     fig.update_layout(
         title='Timetable',
         title_x=0.4,
-        title_font=dict(size=24, family='Arial Black, sans-serif', color='darkblue'),
+        title_font=dict(size=32, family='Arial Black, sans-serif', color='darkblue'),
         margin=dict(l=10, r=10, t=50, b=10),
         height=600
     )
