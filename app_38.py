@@ -76,16 +76,22 @@ def generate_timetable(roll_number):
     elective_1_section = student_section['Professional Elective 1'].values[0]
     elective_2_section = student_section['Professional Elective 2'].values[0]
 
+    # Debug: Print core section and elective sections
+    print(f"Core Section: {core_section}, Elective 1 Section: {elective_1_section}, Elective 2 Section: {elective_2_section}")
+
     # Retrieve the weekly timetable for Professional Electives 1 and 2
     elective_1_timetable = elective_df[elective_df['Section(DE)'] == elective_1_section]
     elective_2_timetable = elective_df[elective_df['Section(DE)'] == elective_2_section]
     core_timetable = core_df[core_df['Section'] == core_section]
 
+    # Debug: Print the core timetable
+    print(f"Core Timetable:\n{core_timetable}")
+
     # Initialize the timetable matrix
     timetable_matrix = pd.DataFrame(index=times, columns=days, data='')
 
     # Function to fill the timetable matrix with subject names and room numbers
-    def fill_timetable(timetable_df):
+    def fill_timetable(timetable_df, section_type):
         room_columns = [col for col in timetable_df.columns if 'ROOM' in col]
         for index, row in timetable_df.iterrows():
             day = day_mapping.get(row['DAY'], 'Unknown')
@@ -98,12 +104,16 @@ def generate_timetable(roll_number):
                     subject = row.get(time_col, 'N/A')
                     room_number = row[col]
                     if subject.lower() != 'x':  # Only include if it's not 'x'
-                        timetable_matrix.at[time_slot, day] = f"{subject} ({room_number})"
+                        current_entry = timetable_matrix.at[time_slot, day]
+                        new_entry = f"{subject} ({room_number})"
+                        if current_entry:
+                            new_entry = f"{current_entry} | {new_entry}"
+                        timetable_matrix.at[time_slot, day] = new_entry
 
     # Fill the timetable matrix for core and elective timetables
-    fill_timetable(core_timetable)
-    fill_timetable(elective_1_timetable)
-    fill_timetable(elective_2_timetable)
+    fill_timetable(core_timetable, 'Core')
+    fill_timetable(elective_1_timetable, 'Elective 1')
+    fill_timetable(elective_2_timetable, 'Elective 2')
 
     # Replace NaN values with blank spaces
     timetable_matrix = timetable_matrix.fillna('')
@@ -111,11 +121,14 @@ def generate_timetable(roll_number):
     # Sort the table based on time slots
     timetable_matrix = timetable_matrix.reindex(times)
 
+    # Debug: Print the final timetable matrix
+    print(f"Timetable Matrix:\n{timetable_matrix}")
+
     # Visualize the timetable using Plotly
     fig = go.Figure(data=[go.Table(
         header=dict(
             values=['Time'] + days,
-            fill_color='royalblue',
+            fill_color='#2c3e50',
             align='center',  # Center align for uniformity
             font=dict(color='white', size=14),
             line_color='darkslategray',
@@ -124,7 +137,7 @@ def generate_timetable(roll_number):
         cells=dict(
             values=[timetable_matrix.index] + [timetable_matrix[day].tolist() for day in days],
             fill=dict(
-                color=[['royalblue'] * len(times)] + [['lavender'] * len(times) for _ in days]
+                color=[['#2c3e50'] * len(times)] + [['#ecf0f1'] * len(times) for _ in days]
             ),
             align='center',  # Center align for uniformity
             font=dict(color=[['white'] * len(times)] + [['black'] * len(times) for _ in days], size=12),
@@ -136,36 +149,58 @@ def generate_timetable(roll_number):
 
     fig.update_layout(
         title='Timetable',
-        title_x=0.4,
-        title_font=dict(size=32, family='Arial Black, sans-serif', color='darkblue'),
-        width=1000,  # Adjust width to fit the size of the image
-        height=600   # Adjust height to fit the size of the image
+        title_x=0.5,
+        title_font=dict(size=24, family='Arial Black, sans-serif', color='darkblue'),
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=600
     )
     return fig
 
 # Streamlit App
+
+# Apply custom CSS for background color and fonts
+st.markdown(
+    """
+    <style>
+    .reportview-container {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+    .sidebar .sidebar-content {
+        background: #2c3e50;
+        color: white;
+    }
+    h1 {
+        font-family: 'Arial Black', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Display image
 st.image('https://raw.githubusercontent.com/satyam26en/TIME_TABLE_KIIT/main/KIIT-Full-Logo-Center.png', use_column_width=True)
+
 st.title('Student Timetable Viewer')
 
-roll_number = st.text_input("Enter Roll Number")
-download = st.checkbox("Download timetable as JPG image")
+roll_number = st.text_input("Enter Roll Number", max_chars=10)
+st.markdown("<br>", unsafe_allow_html=True)  # Add a line break for spacing
 
 if st.button("Generate Timetable"):
     if roll_number:
         fig = generate_timetable(roll_number)
         if fig:
-            st.plotly_chart(fig)
-            if download:
-                img_bytes = fig.to_image(format='jpg')
-                with open('timetable.jpg', 'wb') as f:
-                    f.write(img_bytes)
-                st.success("Timetable has been saved as 'timetable.jpg'")
-                with open("timetable.jpg", "rb") as img_file:
-                    btn = st.download_button(
-                        label="Download timetable as JPG",
-                        data=img_file,
-                        file_name="timetable.jpg",
-                        mime="image/jpg"
-                    )
+            st.plotly_chart(fig, use_container_width=True)
+            img_bytes = fig.to_image(format='jpg')
+            with open('timetable.jpg', 'wb') as f:
+                f.write(img_bytes)
+            st.success("Timetable has been generated. You can download it below.")
+            with open("timetable.jpg", "rb") as img_file:
+                btn = st.download_button(
+                    label="Download timetable as JPG",
+                    data=img_file,
+                    file_name="timetable.jpg",
+                    mime="image/jpg"
+                )
     else:
         st.error("Please enter a roll number.")
