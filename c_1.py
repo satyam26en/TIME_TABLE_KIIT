@@ -75,10 +75,16 @@ def generate_timetable(roll_number):
     elective_1_section = student_section['Professional Elective 1'].values[0]
     elective_2_section = student_section['Professional Elective 2'].values[0]
 
+    # Debug: Print core section and elective sections
+    print(f"Core Section: {core_section}, Elective 1 Section: {elective_1_section}, Elective 2 Section: {elective_2_section}")
+
     # Retrieve the weekly timetable for Professional Electives 1 and 2
     elective_1_timetable = elective_df[elective_df['Section(DE)'] == elective_1_section]
     elective_2_timetable = elective_df[elective_df['Section(DE)'] == elective_2_section]
     core_timetable = core_df[core_df['Section'] == core_section]
+
+    # Debug: Print the core timetable
+    print(f"Core Timetable:\n{core_timetable}")
 
     # Initialize the timetable matrix
     timetable_matrix = pd.DataFrame(index=times, columns=days, data='')
@@ -113,6 +119,9 @@ def generate_timetable(roll_number):
 
     # Sort the table based on time slots
     timetable_matrix = timetable_matrix.reindex(times)
+
+    # Debug: Print the final timetable matrix
+    print(f"Timetable Matrix:\n{timetable_matrix}")
 
     # Visualize the timetable using Plotly
     fig = go.Figure(data=[go.Table(
