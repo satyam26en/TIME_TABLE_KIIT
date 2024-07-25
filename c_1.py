@@ -23,6 +23,7 @@ section_url = 'https://raw.githubusercontent.com/satyam26en/TIME_TABLE_KIIT/main
 elective_url = 'https://raw.githubusercontent.com/satyam26en/TIME_TABLE_KIIT/main/Elective_TIME_TABLE.csv'
 core_url = 'https://raw.githubusercontent.com/satyam26en/TIME_TABLE_KIIT/main/CORE.csv'
 
+# Load data
 section_df = pd.read_csv(section_url)
 elective_df = pd.read_csv(elective_url)
 core_df = pd.read_csv(core_url)
@@ -85,6 +86,12 @@ def generate_timetable(roll_number):
 
     # Debug: Print the core timetable
     print(f"Core Timetable:\n{core_timetable}")
+
+    # Check if core_timetable is empty
+    if core_timetable.empty:
+        print("Core timetable is empty!")
+    else:
+        print("Core timetable is not empty.")
 
     # Initialize the timetable matrix
     timetable_matrix = pd.DataFrame(index=times, columns=days, data='')
@@ -193,15 +200,6 @@ if st.button("Generate Timetable"):
             img_bytes = fig.to_image(format='jpg')
             with open('timetable.jpg', 'wb') as f:
                 f.write(img_bytes)
-            st.success("Timetable has been generated. You can download it below.")
-            with open("timetable.jpg", "rb") as img_file:
-                btn = st.download_button(
-                    label="Download timetable as JPG",
-                    data=img_file,
-                    file_name="timetable.jpg",
-                    mime="image/jpg"
-                )
-    else:
-        st.error("Please enter a roll number.")
+            st.success("
 
 
